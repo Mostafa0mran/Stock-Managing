@@ -1,0 +1,59 @@
+﻿@inject IAuthenticationService AuthService
+@inject NavigationManager NavManager
+
+<EditForm Model="model" OnInvalidSubmit="ExecuteLogin" class="">
+
+	<div class="form-row">
+		<div class="col-auto">
+			<label for="email" class="sr-only">Email</label>
+			<InputText id="email" class="form-control" @bind-Value="model.Email" placeholder="Email Address"/>
+		</div>
+		<div class="col-auto">
+			<label for="password" class="sr-only">Password</label>
+			<InputText type="password" id="password" class="form-control" @bind-Value="model.Password" placeholder="Password"/>
+		</div>
+		<div class="col-auto">
+			<button type="submit" class="btn btn-success" @onclick=ExecuteLogin> Log In </button>
+		</div>
+		<div class="col-auto">
+			<button type="button" class="btn btn-primary" @onclick=RegisterUser> Register </button>
+		</div>
+		@if (ShowAuthenticationError)
+		{
+			<div class="alert alert-danger" role="alert">
+				@AuthenticationErrorText
+			</div>
+		}
+	</div>
+</EditForm>
+
+
+@code {
+    private AuthenticationUserModel model = new();
+
+    private bool ShowAuthenticationError = false;
+    private string AuthenticationErrorText = string.Empty;
+
+	private void RegisterUser()
+	{
+		NavManager.NavigateTo("/register");
+	}
+
+    private async Task ExecuteLogin()
+    {
+        ShowAuthenticationError = false;
+
+        var result = await AuthService.Login(model);
+
+        if (result is not null)
+        {
+            NavManager.NavigateTo("/index");
+        }
+        else
+        {
+            ShowAuthenticationError = true;
+            AuthenticationErrorText = "Invalid username or password";
+        }
+    }
+
+}
